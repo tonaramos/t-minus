@@ -14,12 +14,18 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => res.send('Hello world!'))
 
 //socket setup
+
+
+
+
 io.on('connection', function(socket) {
-  console.log('made a socket connection!');
-//   socket.emit('news', { hello: 'world' });
-//   socket.on('my other event', function (data) {
-//     console.log(data);
-//   });
+  console.log('made a socket connection at ->', Date.now(), 'by -> ', socket.id);
+
+  socket.on('chat', (data) => {
+    data.userId = socket.id;
+    io.sockets.emit('chat', data);
+    // console.log('data below the emit in server ->', data);
+  })
 });
      
 const port = 3010;
