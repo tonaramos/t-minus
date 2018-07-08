@@ -1,25 +1,33 @@
 import React from 'react';
 
-
 class JoinStage extends React.Component {
   constructor(props) {
     super(props);
       this.state = {
-        name
+        name: '',
       };
+    this.aliasUpdate = this.aliasUpdate.bind(this);
+  
+    }
+
+    aliasUpdate (event) {
+      console.log('the data at the aliasUpdate ->', event.target.value);
+      this.setState({ name: event.target.value});
     }
 
   render() {
 
       return (
         <div>
-          <div>The joinStage will be render here</div>     
+            {`Players in room = ${this.props.data.clients}`}
           <div>
-            {`Players in room = props.players/6`} {/* <-- ${this.props.players}   */}
           </div>
-          <div>
-            
-          </div>
+          <form>
+            <label>
+              NickName:
+              <input type="text" name="nickname" onChange={this.props.updateName} />
+            </label>
+          </form>
         </div>
     )
   }
