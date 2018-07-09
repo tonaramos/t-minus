@@ -14,49 +14,104 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.get('/', (req, res) => res.send('Hello world!'))
 
 
-let clients = 0;
+let numUsers = 0; 
 let realClients = 0;
+let usersArr = [];
+let loginTimer = 1;
+let secondsLeft = loginTimer;
+let timeInterval;
+let raceOn = false;
+
+
+//==================  SOCKET CONNECTION  ================
 io.on('connection', function(socket) {
-  clients++;
-// if (realClients%2 === 0 || realClients === 0) {
-//   realClients++;
-//   console.log('connection by', socket.id,  ` ${clients} clients`);
+  //console.log('user connected, userId-> ', socket.id, '#ofUsers-> ', numUsers);
+  let addedUser = false;
+  numUsers++;
+  if (realClients%2 === 0 || realClients === 0) {
+    realClients++;
+  }
 
+  
+  
+  //================ AT FIRST CONNECTION & LOGIN TIMER
+  socket.on('checkIn', () => {
+    if (!addedUser) {
+      clearInterval(timeInterval);
+      secondsLeft = loginTimer;
+      timeInterval = setInterval( () => {
+        --secondsLeft;
+        io.sockets.emit('timeLeft',{secondsLeft})
+        if (secondsLeft <= 0) {
+        io.sockets.emit('phaseTwoStart')
+        raceOn = true;          //////////////
+        clearInterval(timeInterval);
+        }
+      }, 1000);
+    }
+  })
+
+
+  //==================== USER UPDATES
+
+  socket.emit('firstUpdate', () => {   
+    usersArr.push(socke.id)
+    // console.log('usersArr-> ', usersArr);
+    socket.broadcast.emit('callForFirstUpdate')
+  });
+
+  socket.on('addToNumOfUsers', () => {
+    io.sockets.emit('addToNumOfUsers')
+  })
+
+  socket.on('add user', (newUser) => {
+    if (addedUser) return;
+    socket.username = newUser.playerUpdate.playerName;
+    newUser.userId = socket.id;
+    ++numUsers;
+    addedUser = true;
+    // console.log('data form add user-> ', newUser)
+    io.sockets.emit('login', newUser)
+  })
+  
+
+
+
+
+  //==================== RACE UPDATES
  
-//   //const roomsInfo = io.sockets;
-//   //console.log('io.sockets.adapter.rooms -> ', roomsInfo);
+  socket.on('finisher', data => {
+    // console.log('got a finisher in the server')
+     io.sockets.emit('incomingFinisher', data);  
+  })
 
-//   // socket.on('chat', (data) => {
-//   //   data.userId = socket.id;
-//   //   data.rooms = io.sockets.adapter.rooms;
-//   //   data.usersConnected = clients;
-//   //   io.sockets.emit('chat', data);
-    
-//   // })
+  socket.on('goClick', (data) => {
+    data.userId = socket.id;
+    io.sockets.emit('gameUpdate', data);
+  })
+ 
+  socket.on('completeRace', () => {
+    io.sockets.emit('completeRace')
+    raceOn = false;
+  })
 
-//   const numOfRooms = 3; //just result in a number based on the number of ppl logged in 
 
-// }
-socket.on('room1', room => socket.join(room));
-socket.on('chat', (data) => {
-  data.userId = socket.id;
-  data.rooms = io.sockets.adapter.rooms;
-  data.usersConnected = realClients;
-  io.sockets.emit('chat', data);
-  
-})
 
-socket.on('disconnect', function (socket) {
-  clients--;
-  
-  console.log('A user disconnected', socket.id);
-  console.log('# of clients left ->', clients)
-  console.log('real clients ->', realClients)
+
+
+
+  //socket.on('room', room => socket.join(room));
+  socket.on('disconnect', function (socket) {
+    numUsers--;
+    if( numUsers === 0 ) {
+      raceOn = false;
+    }
+    console.log('A user disconnected', socket.id);
+  });
 });
-});
-     
 
 
+//setTimeout()
 
 
 

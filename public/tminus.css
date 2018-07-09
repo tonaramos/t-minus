@@ -1,1 +1,129 @@
+/* Circle,-apple-system,BlinkMacSystemFont,Roboto, */
+body {
+  font-family: Helvetica Neue,sans-serif;
+  font-weight: 300
+}
 
+input {
+    background-color: transparent;
+    border-left: none;
+    border-top: none;
+    border-right: none;
+    border-bottom: 5px;
+    border-bottom-color: aliceblue;
+    color: rgb(18, 62, 93);
+    outline: none;
+    /* font: medium -moz-fixed;
+    font: -webkit-small-control; */
+    font-size: 50px;
+    overflow: auto;
+    /* padding: 5px; */
+    resize: both;
+    width: 200px;
+    text-align: center;
+    border-bottom: solid 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.648);
+}
+
+
+
+
+
+
+.icon {
+  width: 40px;
+  height: 40px;
+  background-color: aqua;
+  position: absolute;
+}
+
+
+
+
+.lane{
+  /* margin-top: 5px; */
+  /* margin-bottom: 5px; */
+}
+
+/* === LOGIN STAGE === */
+.loginBoardContainer {
+   
+background: linear-gradient( rgb(57, 198, 165), white);
+height: 100vh;
+
+color: white;
+display: flex;
+justify-content: space-around;
+align-content: space-around
+
+}
+
+.loginBoard {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+}
+.timerContainer {
+
+}
+.timer{
+  font-weight: 300;
+font-size: 50px;
+}
+.joinStageContainer{
+   
+}
+/* Join stage tags below */
+.numberOfUsersContainer{
+  display: flex;
+     flex-direction: row;
+     justify-content: center;
+     margin-top: 20px;
+}
+.numberOfUsers{
+  font-size: 20px;
+}
+
+
+/* JOIN STAGE */
+.textInputAreaContainer{
+  display: flex;
+  flex-direction: column;
+align-content: space-around;
+
+}
+.textInputArea{
+display: flex;
+flex-direction: row;
+justify-content: center;
+}
+.nameBannerContainer{
+  display: flex;
+   flex-direction: row;
+   justify-content: center;
+
+}
+.nameBanner{
+  display: flex;
+     flex-direction: row;
+   justify-content: center;
+}
+/* === RACE STAGE === */
+
+.gameBoard {
+
+  display: flex;
+  flex-direction: row;
+
+}
+
+.innerGameBoard {
+  width: 600px;
+  height: 300px;
+  background-color: bisque;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+/* === RESULTS STAGE === */

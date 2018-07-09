@@ -18,16 +18,15 @@ class JoinStage extends React.Component {
   render() {
 
       return (
-        <div>
-            {`Players in room = ${this.props.data.clients}`}
-          <div>
+        <div className="textInputAreaContainer">
+          <div >
+            <div className="textInputArea">
+              <input type="text" className="nickname" onChange={this.props.updateName} placeholder={this.props.data.namePlaceholder}/>
+            </div>
           </div>
-          <form>
-            <label>
-              NickName:
-              <input type="text" name="nickname" onChange={this.props.updateName} />
-            </label>
-          </form>
+          <div className="nameBannerContainer">
+            <div className="nameBanner">NAME</div>
+          </div>
         </div>
     )
   }

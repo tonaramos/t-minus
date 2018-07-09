@@ -1,127 +1,233 @@
 import React from 'react';
 import '../main.css';
 import JoinStage from './JoinStage/JoinStage';
+import RaceStage from './RaceStage/RaceStage';
 const io = require('socket.io-client');
 const socket = io.connect('http://127.0.0.1:3010');
-// const info = socket.on('chat', (data)=>{
-//  return data;
-//   });
 
-  // console.log('data from did mount ->',data)
+socket.emit('checkIn')
 
+let timeInterval;
 
 class App extends React.Component {
   constructor(props) {
     super(props);
       this.state = {
+        trackLength: 100,
+        finished: false,
         users: [],
         rooms: {},
-        clients: 0, 
+        numUsers: 0, 
         players: {},
         stage: 0,
         playerName: '',
-        playerPosition: 250,
-        playerSpeed: 25
+        playerPosition: 0,
+        playerSpeed: 25,
+        winners: [],
+        timer: 0,
+        userAddedToCount: false,
+        namePlaceholder: 'Nyan'
       };
-      this.moveToNextStage = this.moveToNextStage.bind(this);
-      this.emit = this.emit.bind(this);
-      this.nameUpdate = this.nameUpdate.bind(this);
-    }
-    componentDidMount() {
-      socket.on('chat', (data)=>{
 
-        if (!this.state.players[data.userId]) {
-          this.setState(this.state.players[data.userId] = data.playerUpdate);
-          this.state.users.push(data.userId);
+    this.moveToStageTwo = this.moveToStageTwo.bind(this);
+    this.addPlayerToRoom = this.addPlayerToRoom.bind(this);
+    this.nameUpdate = this.nameUpdate.bind(this);
+    this.incrementPosition = this.incrementPosition.bind(this);
+    this.singlePlayerUpdate= this.singlePlayerUpdate.bind(this);
+    
+    //========= USER UPDATE
+    socket.on('firstUpdate', () => {
+      this.state.players
+    })
+    
+    socket.on('login', (data) => {
+      console.log('receiving data at socket.on login client-> ',data);
+      let tempPlayers = this.state.players;
+      tempPlayers[data.userId] = data.playerUpdate;
+      this.setState({players: tempPlayers});
+      let tempUsers = this.state.users;
+      tempUsers.push(data.playerUpdate.userId);
+      this.setState({users: tempUsers});
+    });
+
+    socket.on('addToNumOfUsers', () => {
+      this.setState({ numUsers: this.state.numUsers + 1});
+    })
+
+    //======== GAME UPDATE
+    socket.on('timeLeft', (secondsLeft) => {
+      this.setState({timer: secondsLeft.secondsLeft});
+    })
+
+    socket.on('gameUpdate', (data)=>{
+      this.singlePlayerUpdate(data); 
+    });
+
+    socket.on('phaseTwoStart', () => {
+      if(this.state.stage === 0){
+        if (this.state.playerName.length === 0 ) {
+          this.setState({playerName: this.state.namePlaceholder});
+          this.addPlayerToRoom();
+          this.moveToStageTwo();
         }
-        this.setState({
-          rooms: data.rooms,
-          clients: data.usersConnected 
-        });      
-        console.log('data from did mount ->',data)
-     });
-      
+      }
+    });
+
+    socket.on('incomingFinisher', data => {
+      let temp = this.state.winners;
+      temp.push(data.username);
+      this.setState({winners: temp});
+    })
+
+    socket.on('completeRace', () => {
+      this.completeRace();
+    })
+  }
+  
+
+  //========= USER UPDATES
+  nameUpdate (event) {
+    this.setState( { playerName: event.target.value });
+    if (!this.state.presenceUpdated) {
+      socket.emit('addToNumOfUsers');
+      this.setState({presenceUpdated:true});
     }
 
-  emit() {
-    socket.emit('chat', {
+  }
+  
+  addPlayerToRoom() {
+    socket.emit('add user',  {
       playerUpdate: {
         playerName: this.state.playerName,
-        playerposition: this.state.playerPosition,
+        playerPosition: this.state.playerPosition,
         playerSpeed: this.state.playerSpeed
-      },
+      }
     })
   }
 
-  // initialRoomInfo () {
-  //   socket.on('chat', (data)=>{
-  //     if (!this.state.players[data.userId]) {
-  //       this.setState(this.state.players[data.userId] = data.playerUpdate);
-  //       this.state.users.push(data.userId);
-  //     }
-  //     //data.roomsOpen => { room1: false; room2: true, room3: false}
-  //     this.setState( {rooms: data.roomsOpen} )
-  //   });
-  // }
-
-  joinRoom (roomName) {
-    socket.on('connect', () => {
-      socket.emit(room, roomName);
-      
-    });
-
-
+  singlePlayerUpdate(data) {
+    const tempPlayersObj = this.state.players;
+    const user = data.userId;
+    const playersObj = tempPlayersObj[user]; //this is a players object 
+    playersObj[Object.keys(data.playerUpdate)[0]] = data.playerUpdate[Object.keys(data.playerUpdate)[0]];
+    tempPlayersObj[user] = playersObj;
+    this.setState({players: tempPlayersObj});
   }
 
-  moveToNextStage () {
+
+  //========== STAGE UPDATES
+  moveToStageTwo () {
+    this.addPlayerToRoom();
     this.setState( { stage: this.state.stage + 1 });
+    clearInterval(timeInterval);
   }
 
-  nameUpdate (event) {
-    this.setState( { playerName: event.target.value });
+  completeRace() {
+    this.setState({stage:2});
   }
 
+
+  //========== RACE UPDATES
+  incrementPosition() {
+    if(this.state.playerPosition < this.state.trackLength) {
+      this.setState({playerPosition: this.state.playerPosition + 10})
+      socket.emit('goClick', {
+        username: this.state.playerName,
+        playerUpdate: {
+          playerPosition: this.state.playerPosition +10,
+        },
+      });
+    }
+    this.checkWinners();
+  }
+
+  //========= END OF RACE UPDATES
+  sendFinisher() {
+    socket.emit('finisher', {
+      username: this.state.playerName
+    });
+  }
+ 
+  checkWinners () {
+    if (this.state.winners.length === this.state.users.length  || this.state.winners.length === 3) {
+     // this.completeRace();
+      socket.emit('completeRace');       // Use this if winner should unly be 3!!!!!!!!!!!
+    } 
+    if (this.state.playerPosition >= this.state.trackLength && !this.state.finished) {
+      this.setState({finished: true});
+      this.sendFinisher();
+    }
+  }
   
-
-  render() {    
-  
-
-
-
-    // socket.on('chat', (data)=>{
-    //   if (!this.state.players[data.userId]) {
-    //     this.setState(this.state.players[data.userId] = data.playerUpdate);
-    //     this.state.users.push(data.userId);
-    //   } 
-    // });
-
-    const players = Object.keys(this.state.players).length > 0 ? (
-      Object.keys(this.state.players).map( (key, index) => {
-        // if (index === 0 || index%2 === 0) {
-        const tempObj = this.state.players[key];
-        return <div key={key} >{tempObj.playerName}</div>
-        // }
-      })
-    ) : (
-      'No players in room at this time o_0'
-    );
-
-    if (this.state.stage === 0 ) {  //if the form was filled out  ||   time is out      we can call these stages
+  mapWinners() {
+   return this.state.winners.map((player, i) =>{
       return (
         <div>
-          {players }
-          <JoinStage data={this.state} updateName={this.nameUpdate}/>
-          <input type="submit" value="Add name to room!" onClick={this.emit} />
-          <input type="submit" value="GO!" onClick={this.moveToNextStage}/>
+          <div key={player+i}>{`${i+1} - ${player}!`}</div>
         </div>
       )
+    })
+  }
+
+
+  //===========================  RENDER ============================
+
+  render() { 
+    
+      //   === STAGE LOGIN ===
+    if (this.state.stage === 0 ) { 
+      return (
+        <div className="loginBoardContainer">
+          <div className="loginBoard">
+            <div className="timerContainer">
+              <div className="timer">
+                { this.state.timer > 9 ? `T-minus 00:${this.state.timer} ` : `T-minus   00:0${this.state.timer} `}
+              </div>
+            </div>
+            <div className="joinStageContainer">
+                <JoinStage data={this.state} updateName={this.nameUpdate}/>
+            </div>  
+            <div className="numberOfUsersContainer">
+              <div className="numberOfUsers">
+                { this.state.numUsers > 0 ? `Reacers ready ${this.state.numUsers}` : 'No racers at this time o_0' }
+              </div>
+            </div>
+          </div>  
+        </div>
+      )
+
+      //   === STAGE RACE ===
     } else if (this.state.stage === 1 ) {     //time is out, race is taking place  
-      return (<div> This will be the race component taking place</div>)
-    } else if (this.state.stage === 2) {  // once the race is ove list the results. 
-      return (<div>this will be the stats of the race once complete</div>)
-    }
+      return (
+        <div>
+          <RaceStage players={this.state.players} emitProgress={this.nameUpdate} updateMyState={this.updateMyState} 
+            incrementPosition={this.incrementPosition} />
+        </div>
+
+        //   === STAGE RESULTS ===
+    )} else if (this.state.stage === 2) {  // once the race is ove list the results. 
+      return (
+      <div>
+        <div>Winners are </div>
+        <div>
+          {this.mapWinners()}
+          </div>
+      </div>
+    )}
+
     return (<div>you got to the secrete stage, this can't be good x_X</div>)
   }
 }
 
 export default App;
+
+
+
+/*
+
+const players = Object.keys(this.state.players).length > 0 ? (
+      Object.keys(this.state.players).map( (key, index) => {
+        const tempObj = this.state.players[key];
+        return <div key={key+index} >{tempObj.playerName}</div>
+      })
+*/
