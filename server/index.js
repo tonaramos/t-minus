@@ -174,7 +174,7 @@ io.on('connection', function(socket) {
 
 
 const port = 5000;
-server.listen(port, ()=>console.log('listening on port: ', port));
+server.listen(process.env.PORT || port, ()=>console.log('listening on port: ', port));
 
 
 
