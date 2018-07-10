@@ -13,7 +13,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
       this.state = {
-        trackLength: 100,
+        trackLength: 1000,
         finished: false,
         users: [],
         rooms: {},
@@ -68,8 +68,9 @@ class App extends React.Component {
         if (this.state.playerName.length === 0 ) {
           this.setState({playerName: this.state.namePlaceholder});
           this.addPlayerToRoom();
-          this.moveToStageTwo();
+          
         }
+        this.moveToStageTwo();
       }
     });
 
@@ -199,7 +200,7 @@ class App extends React.Component {
       //   === STAGE RACE ===
     } else if (this.state.stage === 1 ) {     //time is out, race is taking place  
       return (
-        <div>
+        <div className="stageTwoContainer">
           <RaceStage players={this.state.players} emitProgress={this.nameUpdate} updateMyState={this.updateMyState} 
             incrementPosition={this.incrementPosition} />
         </div>

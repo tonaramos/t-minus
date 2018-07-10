@@ -11,7 +11,7 @@ class GoPanel extends React.Component {
     
     return (
       <div>
-        <button onClick={this.props.incrementPosition}>GO!</button>
+        {/* <div onClick={this.props.incrementPosition}></div> */}
       </div>
     ) 
   }

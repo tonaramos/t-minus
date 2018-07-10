@@ -13,14 +13,14 @@ class Course extends React.Component {
       const player = this.props.players[objKey];
       //  const marLeft = player.playerPosition + 'px';
       return (
-        <div className="lane">
+        // <div className="lane">
           <div className="icon" style={{left: player.playerPosition }} key={player.playerName+i}>{`  ${player.playerName}  ${player.playerPosition}`}</div>
-        </div>
+        // </div>
       )
     });
 
     return (
-      <div>
+      <div className="outterBoard">
         <div className="innerGameBoard" >
           {trackers}
         </div>

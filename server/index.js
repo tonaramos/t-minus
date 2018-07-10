@@ -12,31 +12,70 @@ app.use(bodyparser.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/', (req, res) => res.send('Hello world!'))
-
+  // if(!roomsCount[numOfRooms]) {
+  //   roomsCount[numOfRooms] = 1;
+  // } else
 
 let numUsers = 0; 
 let realClients = 0;
 let usersArr = [];
-let loginTimer = 1;
+let loginTimer = 15;
 let secondsLeft = loginTimer;
 let timeInterval;
+let rooms = ['1'];
+let roomsCount = {'1':0};
 let raceOn = false;
+
+
+let roomAssign = () => {
+  let numOfRooms = rooms.length + '';
+  //check last room see if it is full, 
+  if (roomsCount[numOfRooms] < 3) {                           ////   <---------change the max # of Roos
+  //if it is not retunr the string of the room number and add one to the room
+    roomsCount[numOfRooms] = roomsCount[numOfRooms] + 1; 
+    return numOfRooms;
+  } else if (roomsCount[numOfRooms] === 3){                 ////   <---------change the max # of Roos
+  //if it is then add a number to the arr and roomCount with one count
+    let newRoom = (rooms.length+1) + ''; 
+    rooms.push(newRoom);
+    roomsCount[newRoom] = 1;
+    return newRoom;
+  }
+   return 'Room assigment error.'
+}
 
 
 //==================  SOCKET CONNECTION  ================
 io.on('connection', function(socket) {
   //console.log('user connected, userId-> ', socket.id, '#ofUsers-> ', numUsers);
+  console.log('RoomsArr -> ', rooms, '  roomsCount object-> ', roomsCount);
   let addedUser = false;
   numUsers++;
   if (realClients%2 === 0 || realClients === 0) {
     realClients++;
   }
 
+  //assign a room after first connection DONE
+  // send back client the room          PENDING
+  // and include the room in every message the clients sends from now on
+
+  //server handle all calls for clients from different rooms. 
+
   
   
-  //================ AT FIRST CONNECTION & LOGIN TIMER
+  //================ AT FIRST CONNECTION & LOGIN TIMER w/ second stage trigger
   socket.on('checkIn', () => {
+
     if (!addedUser) {
+      //check rooms, add if need it, join the client to it
+      let roomToAdd = roomAssign(); 
+      socket.join(roomToAdd, () => {
+        //return the room assigned                                  <---Pending
+
+      });
+
+
+      //============ timer starts
       clearInterval(timeInterval);
       secondsLeft = loginTimer;
       timeInterval = setInterval( () => {
@@ -48,7 +87,10 @@ io.on('connection', function(socket) {
         clearInterval(timeInterval);
         }
       }, 1000);
+      //=========== timer ends  
     }
+
+
   })
 
 
@@ -105,6 +147,8 @@ io.on('connection', function(socket) {
     numUsers--;
     if( numUsers === 0 ) {
       raceOn = false;
+      rooms = [];
+      roomsCount = {};
     }
     console.log('A user disconnected', socket.id);
   });
