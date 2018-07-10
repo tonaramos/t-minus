@@ -3,7 +3,7 @@ import '../main.css';
 import JoinStage from './JoinStage/JoinStage';
 import RaceStage from './RaceStage/RaceStage';
 const io = require('socket.io-client');
-const socket = io.connect('http://127.0.0.1:3010');
+const socket = io.connect('https://damp-ocean-23457.herokuapp.com/');
 
 socket.emit('checkIn')
 console.log(socket);
