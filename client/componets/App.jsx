@@ -6,21 +6,23 @@ const io = require('socket.io-client');
 const socket = io.connect('http://127.0.0.1:3010');
 
 socket.emit('checkIn')
-
+console.log(socket);
 let timeInterval;
 
 class App extends React.Component {
   constructor(props) {
     super(props);
       this.state = {
-        trackLength: 1000,
+        trackLength: 100,
         finished: false,
+        room: '',
         users: [],
-        rooms: {},
+        // rooms: {},
         numUsers: 0, 
         players: {},
         stage: 0,
         playerName: '',
+        playerId: socket.id,
         playerPosition: 0,
         playerSpeed: 25,
         winners: [],
@@ -36,19 +38,35 @@ class App extends React.Component {
     this.singlePlayerUpdate= this.singlePlayerUpdate.bind(this);
     
     //========= USER UPDATE
-    socket.on('firstUpdate', () => {
-      this.state.players
+    socket.on('firstUpdate', () => {    //am i using this? looks like i am
+      this.state.players;
+      this.setState({playerId: socket.id});
     })
     
     socket.on('login', (data) => {
-      console.log('receiving data at socket.on login client-> ',data);
+      //console.log('receiving data at socket.on login client-> ',data);
       let tempPlayers = this.state.players;
       tempPlayers[data.userId] = data.playerUpdate;
       this.setState({players: tempPlayers});
       let tempUsers = this.state.users;
       tempUsers.push(data.playerUpdate.userId);
       this.setState({users: tempUsers});
+
+
     });
+
+    socket.on('roomToJoin', data => {
+      // console.log('got to roomToJoin handler');
+      // console.log('before checking id socketid from client connection->',socket.id);
+      // console.log('before checking id socketid from server connection->',data.id);
+      if (data.id == this.state.playerId) {
+        this.setState({room: data.room})
+        socket.room = data.room;
+        console.log('this socket ->',socket);
+      }
+      
+      
+    })
 
     socket.on('addToNumOfUsers', () => {
       this.setState({ numUsers: this.state.numUsers + 1});
@@ -68,7 +86,6 @@ class App extends React.Component {
         if (this.state.playerName.length === 0 ) {
           this.setState({playerName: this.state.namePlaceholder});
           this.addPlayerToRoom();
-          
         }
         this.moveToStageTwo();
       }
@@ -128,14 +145,14 @@ class App extends React.Component {
   }
 
 
-  //========== RACE UPDATES
+  //========== RACE UPDATES  increment
   incrementPosition() {
     if(this.state.playerPosition < this.state.trackLength) {
-      this.setState({playerPosition: this.state.playerPosition + 10})
+      this.setState({playerPosition: this.state.playerPosition + .5})
       socket.emit('goClick', {
         username: this.state.playerName,
         playerUpdate: {
-          playerPosition: this.state.playerPosition +10,
+          playerPosition: this.state.playerPosition + .5,
         },
       });
     }
@@ -150,7 +167,7 @@ class App extends React.Component {
   }
  
   checkWinners () {
-    if (this.state.winners.length === this.state.users.length  || this.state.winners.length === 3) {
+    if (this.state.winners.length === this.state.users.length  || this.state.winners.length === 5) {
      // this.completeRace();
       socket.emit('completeRace');       // Use this if winner should unly be 3!!!!!!!!!!!
     } 
@@ -208,11 +225,17 @@ class App extends React.Component {
         //   === STAGE RESULTS ===
     )} else if (this.state.stage === 2) {  // once the race is ove list the results. 
       return (
-      <div>
-        <div>Winners are </div>
-        <div>
+      <div className="thirdStage">
+        <div className="nameTable">
+        <div className="titleContainer">
+          <div>Winners! </div>
+        </div>
+        <div className="list">
           {this.mapWinners()}
-          </div>
+        </div>
+        <div className="scoreBoard">    
+        </div>
+        </div>
       </div>
     )}
 

@@ -25,6 +25,7 @@ input {
     text-align: center;
     border-bottom: solid 1px;
     border-bottom-color: rgba(255, 255, 255, 0.648);
+    
 }
 
 
@@ -35,8 +36,13 @@ input {
 .icon {
   width: 40px;
   height: 40px;
-  background-color: aqua;
-  position: absolute;
+  border-radius: 100%; 
+  display: flex;
+  justify-content: center;
+  position: relative;
+  font-size: 150%;
+  align-items: center;
+  outline-style:none;
 }
 
 
@@ -50,7 +56,7 @@ input {
 /* === LOGIN STAGE === */
 .loginBoardContainer {
    
-background: linear-gradient( rgb(57, 198, 165), white);
+background: linear-gradient( rgb(29, 173, 201), white);
 height: 100vh;
 
 color: white;
@@ -127,20 +133,42 @@ flex-direction: row;
 /* === Left Panel === */
 
 .leftPanel {
-  background-color: rgb(190, 139, 35);
-width: 14%;
+  
+width: 10%;
 height: 100%;
+}
+.namesHolder{
+  background-color: rgb(205, 193, 60);
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  
+  /* justify-content: flex-end; */
+}
+
+.names {
+  margin-left: 5px;
+}
+
+.cornerBox {
+height: 10%;
+background-color: rgb(35, 105, 6);
 }
 
 /* Name and Stats */
 
-.namesHolder{
-}
+
 
 /* === RIGHT Panel === */
 .rightPanel{
   height: 100%;
-  width: 86%;
+  width: 90%;
+}
+
+.names {
+font-weight: 350;
+font-size: 80%;
 }
 
 /* Course */
@@ -148,25 +176,59 @@ height: 100%;
   background-color:  rgb(149, 217, 76);
   height: 90%;
   position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-direction: column;
+  justify-content: space-around;
+  
 }
+
+
+.gameBoard {
+  width: 100%;
+  height: 100%;
+  display: flex;  
+  flex-direction: column;
+  justify-content: space-around;
+}
+
 
 .goPanelTopContainer {
   background-color: steelblue;
   height: 10%;
 }
 
-.gameBoard {
-  /* display: flex;
-  flex-direction: row; */
+.finsihLineContainer {
+  display: flex;
+  justify-content: center;
+  width: 30px;
 }
 
-.outterBoard {
-  position: relative;
+.finishLine {
+display:block;
+  overflow: hidden;
 }
-.innerGameBoard {
-  /* position: absolute;   */
+
+
+/* === RESULTS STAGE === */
+
+.thirdStage {
+  display: flex;
+  justify-content: center;
+}
+
+.nameTable {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: center;
 }
-/* === RESULTS STAGE === */
+
+.titleContainer {
+  margin-top: 25px;
+  font-size: 50px;
+
+}
+
+.list {
+  font-size: 20px;
+}
