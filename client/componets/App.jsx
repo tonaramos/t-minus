@@ -207,7 +207,7 @@ class App extends React.Component {
             </div>  
             <div className="numberOfUsersContainer">
               <div className="numberOfUsers">
-                { this.state.numUsers > 0 ? `Reacers ready ${this.state.numUsers}` : 'No racers at this time o_0' }
+                { this.state.numUsers > 0 ? `Racers ready ${this.state.numUsers}` : 'No racers at this time o_0' }
               </div>
             </div>
           </div>  
