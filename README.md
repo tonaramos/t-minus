@@ -1,2 +1,2 @@
 # t-minus
-The easiest furriest choosing method between your friends. 
+Quick live racer game to play with your friends while waiting in line. 

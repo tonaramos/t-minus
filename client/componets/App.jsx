@@ -17,7 +17,6 @@ class App extends React.Component {
         finished: false,
         room: '',
         users: [],
-        // rooms: {},
         numUsers: 0, 
         players: {},
         stage: 0,
@@ -51,8 +50,6 @@ class App extends React.Component {
       let tempUsers = this.state.users;
       tempUsers.push(data.playerUpdate.userId);
       this.setState({users: tempUsers});
-
-
     });
 
     socket.on('roomToJoin', data => {
@@ -64,8 +61,6 @@ class App extends React.Component {
         socket.room = data.room;
         console.log('this socket ->',socket);
       }
-      
-      
     })
 
     socket.on('addToNumOfUsers', () => {
@@ -110,7 +105,6 @@ class App extends React.Component {
       socket.emit('addToNumOfUsers');
       this.setState({presenceUpdated:true});
     }
-
   }
   
   addPlayerToRoom() {
@@ -191,7 +185,6 @@ class App extends React.Component {
   //===========================  RENDER ============================
 
   render() { 
-    
       //   === STAGE LOGIN ===
     if (this.state.stage === 0 ) { 
       return (
@@ -213,7 +206,6 @@ class App extends React.Component {
           </div>  
         </div>
       )
-
       //   === STAGE RACE ===
     } else if (this.state.stage === 1 ) {     //time is out, race is taking place  
       return (
@@ -238,15 +230,10 @@ class App extends React.Component {
         </div>
       </div>
     )}
-
     return (<div>you got to the secrete stage, this can't be good x_X</div>)
   }
 }
-
 export default App;
-
-
-
 /*
 
 const players = Object.keys(this.state.players).length > 0 ? (
